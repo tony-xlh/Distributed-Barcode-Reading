@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head> 
+    <meta charset="utf-8"> 
+    <title>ZeroMQ Test</title> 
+</head>
+<body>
+    <div id="sessionCreator">
+        Image folder path: <input type="text" id="folderpath" name="folderpath" value="F:\zeromq\test">
+        <button type="button" onclick='createSession()'>Create Session</button>
+    </div>
+    <div>
+        Current session: <span id="sessionID"></span><br/>
+        <button type="button" onclick='startSession()'>Start Session</button><br/>
+        Progress:
+        <span id="progress"></span>
+        <div>
+            Elapsed Time: 
+            <span id="elapsedTime"></span>ms
+        </div>
+    </div>
+    <script>
+        var currentSessionID = "";
+        var isDecoding = false;
+        function createSession(){
+            var url = "/session/create/" +  encodeURIComponent(document.getElementById("folderpath").value);
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4){
+                    console.log(xhr.status);
+                    console.log(xhr.responseText);
+                    if (xhr.status==200){
+                        currentSessionID = JSON.parse(xhr.responseText)["session_id"];
+                        document.getElementById("sessionID").innerHTML = currentSessionID;
+                    }
+                }
+            }
+            xhr.send();
+        }
+        
+        function startSession(){
+            if (currentSessionID==""){
+                alert("Please start a session first.")
+                return;
+            }
+            if (isDecoding==true){
+                alert("The decoding has not been completed.");
+                return;
+            }
+            isDecoding = true;
+            var url = "/session/"+currentSessionID+"/start/";
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4){
+                    console.log(xhr.status);
+                    console.log(xhr.responseText);
+                    updateProgress();
+                }
+            }
+            xhr.send();
+        
+        }
+        
+        function updateProgress(){
+            var url = "/session/"+currentSessionID+"/progress/";
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onreadystatechange = async function(){
+                if(xhr.readyState === 4){
+                    console.log(xhr.status);
+                    console.log(xhr.responseText);
+                    var progress = xhr.responseText;
+                    if (progress.split("/")[0]!=progress.split("/")[1]){
+                        document.getElementById("progress").innerHTML = progress;
+                        await sleep(1000);
+                        updateProgress();
+                    }else{
+                        document.getElementById("progress").innerHTML = "Done";
+                        getElapsedTime();
+                        isDecoding = false;
+                    }
+                    
+                }
+            }
+            xhr.send();
+        
+        }
+        
+        function getElapsedTime(){
+            var url = "/session/"+currentSessionID+"/time/";
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onreadystatechange = async function(){
+                if(xhr.readyState === 4){
+                    console.log(xhr.status);
+                    console.log(xhr.responseText);
+                    document.getElementById("elapsedTime").innerHTML = xhr.responseText;
+                }
+            }
+            xhr.send();
+        
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
