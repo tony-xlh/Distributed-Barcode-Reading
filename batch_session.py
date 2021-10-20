@@ -34,7 +34,7 @@ class Batch_session():
         print("dispatch")
         context = zmq.Context()
         zmq_socket = context.socket(zmq.PUSH)
-        zmq_socket.bind("tcp://127.0.0.1:5557")
+        zmq_socket.bind("tcp://*:5557")
         # Start your result manager and workers before you start your producers
         for filename in self.files_list:
             work_message = { 'session_id' : self.id, 'url': self.get_file_url(filename) }
