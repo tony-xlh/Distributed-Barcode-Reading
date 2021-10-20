@@ -2,7 +2,6 @@ from dbr import *
 import os
 import base64
 
-
 class DynamsoftBarcodeReader():
     def __init__(self):
         self.dbr = BarcodeReader()
@@ -14,11 +13,11 @@ class DynamsoftBarcodeReader():
     def set_runtime_settings_with_template(self, template):
         self.dbr.init_runtime_settings_with_string(template, conflict_mode=EnumConflictMode.CM_OVERWRITE)
         
-    def decode_file(self, img_path):
+    def decode_file_stream(self, image_bytes):
         result_dict = {}
         results = []
-        text_results = self.dbr.decode_file(img_path)
         
+        text_results = self.dbr.decode_file_stream(bytearray(image_bytes))
         if text_results!=None:
             for tr in text_results:
                 result = {}

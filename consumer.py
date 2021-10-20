@@ -1,6 +1,7 @@
 import time
 import zmq
 import random
+import requests
 from BarcodeReader import DynamsoftBarcodeReader
 
 def consumer():
@@ -18,7 +19,8 @@ def consumer():
     while True:
         work = consumer_receiver.recv_json()
         url = work['url']
-        reading_result=reader.decode_file(url)
+        #reading_result=reader.decode_file(url)
+        reading_result=reader.decode_file_stream(requests.get(url).content)
         result = { 'consumer' : consumer_id, 'reading_result' : reading_result, 'session_id': work['session_id']}
         consumer_sender.send_json(result)
 

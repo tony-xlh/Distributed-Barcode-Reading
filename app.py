@@ -36,6 +36,7 @@ app = Flask(__name__, static_url_path='/', static_folder='static')
 
 sessions={}
 elapsed_times={}
+port=5111
 
 threading.Thread(target=result_collector, args=()).start()
 
@@ -80,7 +81,12 @@ def get_session_time(session_id):
     else:
         return str(0)
 
+@app.route('/image/<img_path>')
+def get_image(img_path):
+    print(img_path)
+    return send_file(img_path)
+
 if __name__ == '__main__':
     #create_and_start_session("test")
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0',port=port)
     

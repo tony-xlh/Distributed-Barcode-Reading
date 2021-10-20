@@ -5,9 +5,10 @@ import time
 import threading
 import uuid
 import zmq
+import utils
 
 class Batch_session():
-    def __init__(self, img_folder, session_id=None):
+    def __init__(self, img_folder, port=5111, session_id=None):
         self.img_folder = img_folder
         self.id = uuid.uuid1().hex
         if session_id != None:
@@ -16,6 +17,7 @@ class Batch_session():
         self.processed = 0
         self.load_files_list()
         self.start_time = 0
+        self.port = port
 
     def start_reading(self):
         self.processed = 0
@@ -40,7 +42,7 @@ class Batch_session():
             zmq_socket.send_json(work_message)
             
     def get_file_url(self, filename):
-        return os.path.join(self.img_folder,filename)
+        return utils.get_url(os.path.join(self.img_folder,filename),self.port)
 
     def completed(self):
         if len(self.files_list) == self.processed:
