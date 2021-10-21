@@ -1,0 +1,1 @@
+Start consumer, http server, result collector and producer in order.
