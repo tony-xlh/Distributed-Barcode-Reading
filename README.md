@@ -1,2 +1,6 @@
 # Distributed-Barcode-Reading
-Distributed barcode reading using ZeroMQ with its Push/Pull Pattern and cross language decoding using its Request/Reply pattern
+
+There are two demos in this repo.
+
+* `Push-Pull`: Distributed barcode reading using ZeroMQ with its Push/Pull Pattern 
+* `Request-Reply`: Cross language decoding using ZeroMQ's Request/Reply pattern
