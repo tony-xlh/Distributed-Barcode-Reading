@@ -18,11 +18,18 @@ class Batch_session():
         self.load_files_list()
         self.start_time = 0
         self.port = port
+        self.reading = False
+        self.queue = []
 
     def start_reading(self):
+        self.reading = True
         self.processed = 0
         self.start_time = time.time()
         threading.Thread(target=self.dispatch, args=()).start()
+        
+    def stop_reading(self):
+        self.reading = False
+        self.queue = []
             
     def load_files_list(self):
         for filename in os.listdir(self.img_folder):
@@ -36,11 +43,26 @@ class Batch_session():
         zmq_socket = context.socket(zmq.PUSH)
         zmq_socket.bind("tcp://*:5557")
         # Start your result manager and workers before you start your producers
+
         for filename in self.files_list:
-            work_message = { 'session_id' : self.id, 'url': self.get_file_url(filename) }
+            if self.reading == False:
+                print("Stopped")
+                break
+            while len(self.queue)>9:
+                #print("Queue full. Wait for files to be processed...")
+                time.sleep(0.01)
+            url = self.get_file_url(filename)
+            self.queue.append(url)
+            work_message = { 'session_id' : self.id, 'url': url}
             time.sleep(0.01)
             zmq_socket.send_json(work_message)
-            
+        print("dispatch done")
+    
+    def delete_url_in_queue(self,url):
+        if url in self.queue:
+            self.queue.remove(url)
+    
+        
     def get_file_url(self, filename):
         return utils.get_url(os.path.join(self.img_folder,filename),self.port)
 

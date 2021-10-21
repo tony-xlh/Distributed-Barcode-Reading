@@ -25,12 +25,14 @@ def result_collector():
 def update_session_processed(result):
     session_id=result["session_id"]
     session = get_session(session_id)
-    session.processed = session.processed + 1
-    print(session.get_process())
-    if session.completed():
-        elapsed_time = int((time.time() - session.start_time) * 1000)
-        elapsed_times[session_id] = elapsed_time
-        print("Session completed in " + str(elapsed_time) + "ms.")
+    if session!=None:
+        session.processed = session.processed + 1
+        session.delete_url_in_queue(result["url"])
+        print(session.get_process())
+        if session.completed():
+            elapsed_time = int((time.time() - session.start_time) * 1000)
+            elapsed_times[session_id] = elapsed_time
+            print("Session completed in " + str(elapsed_time) + "ms.")
 
 app = Flask(__name__, static_url_path='/', static_folder='static')
 
@@ -59,6 +61,14 @@ def start_session(session_id):
         return "Not exist"
     session.start_reading()
     return "Started"
+
+@app.route('/session/<session_id>/stop/')
+def stop_session(session_id):
+    session = get_session(session_id)
+    if session == None:
+        return "Not exist"
+    session.stop_reading()
+    return "Stopped"
 
 
 def get_session(session_id):

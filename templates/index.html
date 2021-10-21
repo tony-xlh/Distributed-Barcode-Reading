@@ -11,7 +11,7 @@
     </div>
     <div>
         Current session: <span id="sessionID"></span><br/>
-        <button type="button" onclick='startSession()'>Start Session</button><br/>
+        <button id="sessionBtn" type="button" onclick='startOrStopSession()'>Start Session</button><br/>
         Progress:
         <span id="progress"></span>
         <div>
@@ -39,6 +39,17 @@
             xhr.send();
         }
         
+        function startOrStopSession(){
+            var btn = document.getElementById("sessionBtn");
+            if (btn.innerText == "Start Session"){
+                btn.innerText="Stop Session";
+                startSession();
+            }else{
+                btn.innerText="Start Session";
+                stopSession();
+            }
+        }
+        
         function startSession(){
             if (currentSessionID==""){
                 alert("Please start a session first.")
@@ -60,10 +71,35 @@
                 }
             }
             xhr.send();
+        }
         
+        function stopSession(){
+            if (currentSessionID==""){
+                alert("Please start a session first.")
+                return;
+            }
+            if (isDecoding==false){
+                alert("The decoding has not been started.");
+                return;
+            }
+            isDecoding = false;
+            var url = "/session/"+currentSessionID+"/stop/";
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4){
+                    console.log(xhr.status);
+                    console.log(xhr.responseText);
+                    updateProgress();
+                }
+            }
+            xhr.send();
         }
         
         function updateProgress(){
+            if (isDecoding==false){
+                return;
+            }
             var url = "/session/"+currentSessionID+"/progress/";
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url);
