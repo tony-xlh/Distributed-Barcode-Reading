@@ -4,7 +4,7 @@ import urllib.parse
 import time
 
 def get_file_url(img_path):
-    ip = "192.168.191.1"
+    ip = "192.168.8.65"
     port = 5111
     url = "http://"+str(ip)+":"+str(port)+"/image/"+urllib.parse.quote(img_path)
     return url
