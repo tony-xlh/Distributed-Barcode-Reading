@@ -12,12 +12,16 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZContext;
 
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -31,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv;
     private TextView idTv;
     private TextInputEditText ipEt;
+    private EditText templateEt;
+    @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +44,36 @@ public class MainActivity extends AppCompatActivity {
         idTv=findViewById(R.id.idTextView);
         tv=findViewById(R.id.textView);
         ipEt=findViewById(R.id.ipTextEdit);
+        templateEt=findViewById(R.id.templateEt);
+        templateEt.setText(readStream(getResources().openRawResource(R.raw.template)));
         initDBR();
 
     }
 
+    private String readStream(InputStream is) {
+
+        try {
+            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+            int i = is.read();
+            while(i != -1) {
+                bo.write(i);
+                i = is.read();
+            }
+
+            return bo.toString();
+        } catch (IOException e) {
+            return "";
+        }
+    }
+
     public void connectButton_onClicked(View view){
+        try {
+            String template = templateEt.getText().toString();
+            Log.d("DBR",template);
+            reader.initRuntimeSettingsWithString(template,EnumConflictMode.CM_OVERWRITE);
+        } catch (BarcodeReaderException e) {
+            e.printStackTrace();
+        }
         ZeroMQThread t = new ZeroMQThread();
         t.start();
     }
@@ -151,6 +182,12 @@ public class MainActivity extends AppCompatActivity {
                         result.put("reading_result",JSON.parseObject(resultString));
                         result.put("session_id",jsonObject.get(("session_id")));
                         result.put("url",jsonObject.get(("url")));
+                        if (jsonObject.containsKey("size")){
+                            result.put("size",jsonObject.get("size"));
+                        }
+                        if (jsonObject.containsKey("start_time")){
+                            result.put("start_time",jsonObject.get("start_time"));
+                        }
                         String resultJSONString = result.toJSONString();
                         consumerSender.send(resultJSONString);
                         runOnUiThread(new Runnable() {

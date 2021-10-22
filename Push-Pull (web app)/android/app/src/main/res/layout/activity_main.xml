@@ -46,6 +46,14 @@
             android:layout_height="wrap_content"
             android:text="TextView" />
 
+        <EditText
+            android:id="@+id/templateEt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textMultiLine" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
