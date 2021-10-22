@@ -17,6 +17,6 @@ while True:
     work = consumer_receiver.recv_json()
     url = work['url']
     reading_result=reader.decode_file_stream(requests.get(url).content) # The requests library is used to download images
-    result = { 'consumer' : consumer_id, 'reading_result' : reading_result, 'url': url}
-    print(result)
+    result = { 'consumer' : consumer_id, 'reading_result' : reading_result, 'url': url, 'size': work['size'], 'start_time': work['start_time']}
+    #print(result)
     consumer_sender.send_json(result)

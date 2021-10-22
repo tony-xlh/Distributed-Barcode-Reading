@@ -23,9 +23,11 @@ files_list = load_files_list(folder)
 context = zmq.Context()
 zmq_socket = context.socket(zmq.PUSH)
 zmq_socket.bind("tcp://*:5557")
+start_time = int(time.time()*1000)
+size = len(files_list)
 for filename in files_list:
     url = get_file_url(os.path.join(folder,filename))
-    work_message = { 'url': url}
+    work_message = { 'url': url, 'size': size, 'start_time': start_time}
     print(work_message)
-    time.sleep(0.05)
+    time.sleep(0.01)
     zmq_socket.send_json(work_message)
